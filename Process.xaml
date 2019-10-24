@@ -1,0 +1,766 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="ProcessTransaction" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:be="clr-namespace:BalaReva.Externals;assembly=BalaReva.Externals" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities" xmlns:s="clr-namespace:SendGridActivities;assembly=Sengrid" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=mscorlib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:us="clr-namespace:UiPathTeam.SharePoint;assembly=UiPathTeam.SharePoint" xmlns:usa="clr-namespace:UiPathTeam.SharePoint.Activities;assembly=UiPathTeam.SharePoint.Activities" xmlns:usal="clr-namespace:UiPathTeam.SharePoint.Activities.Libraries;assembly=UiPathTeam.SharePoint.Activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_BenefitExcelFullPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_WorkdayUser" Type="InArgument(x:String)" />
+    <x:Property Name="in_WorkdayPass" Type="InArgument(x:String)" />
+    <x:Property Name="in_SharepointUser" Type="InArgument(x:String)" />
+    <x:Property Name="in_SharepointPass" Type="InArgument(x:String)" />
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+    <x:Property Name="in_SendGridAPIKey" Type="InArgument(x:String)" />
+    <x:Property Name="in_ReportsFolderFullPath" Type="InArgument(x:String)" />
+  </x:Members>
+  <mva:VisualBasic.Settings>
+    <x:Null />
+  </mva:VisualBasic.Settings>
+  <sap:VirtualizedContainerService.HintSize>1028,4757</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>ProcessTransaction_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>System.Xml.Serialization</x:String>
+      <x:String>Microsoft.VisualBasic.CompilerServices</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualStudio.Services.Common</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>UiPath.Excel</AssemblyReference>
+      <AssemblyReference>UiPath.Mail</AssemblyReference>
+      <AssemblyReference>System.ValueTuple</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Description: In this file all other process specific files will be invoked. If an application exception occurs, the current transaction can be retried. If a BRE is thrown, the transaction will be skipped. Can be a flowchart or sequence. " DisplayName="ProcessTransaction" sap:VirtualizedContainerService.HintSize="988,4677" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="sd:DataTable" Name="myActiveEmployeesDT" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myTerminatedEmployeesDT" />
+      <Variable x:TypeArguments="x:Boolean" Name="mySendToBenefitOption" />
+      <Variable x:TypeArguments="x:String" Name="myToday" />
+      <Variable x:TypeArguments="x:String" Name="myYesterday" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myNewHiresDT" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myNewFiresDT" />
+      <Variable x:TypeArguments="x:String" Name="myFireDate" />
+      <Variable x:TypeArguments="x:String" Name="myHireDate" />
+      <Variable x:TypeArguments="x:String" Name="myActiveEmployeesReportPath" />
+      <Variable x:TypeArguments="x:String" Name="myTerminatedEmployeesReportPath" />
+      <Variable x:TypeArguments="x:String" Name="myYesterdayActiveReportsFileName" />
+      <Variable x:TypeArguments="x:String" Name="myYesterdayActiveReportsLocalPath" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myYesterdayActiveEmployeesDT" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myYesterdayActiveEmployeesRomaniaDT" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myActiveEmployeesRomaniaDT" />
+      <Variable x:TypeArguments="x:Int32" Name="myCurrentRowIndex" />
+      <Variable x:TypeArguments="x:String" Name="myTodayActiveReportsFileName" />
+      <Variable x:TypeArguments="sd:DataTable" Name="myBenefitEmployeesDT" />
+      <Variable x:TypeArguments="x:Boolean" Name="myActiveEmployeesReportPathExists" />
+      <Variable x:TypeArguments="x:Boolean" Name="myTerminatedEmployeesReportPathExists" />
+      <Variable x:TypeArguments="x:Boolean" Name="myYesterdayEmployeesReportPathExists" />
+      <Variable x:TypeArguments="x:String" Name="myZIPFullPath" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <Sequence DisplayName="Initialize Dates And Send Option Sequence" sap:VirtualizedContainerService.HintSize="966,51" sap2010:WorkflowViewState.IdRef="Sequence_6">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <Assign DisplayName="Assign Initialize mySendToBenefitOption False" sap:VirtualizedContainerService.HintSize="242,60" sap2010:WorkflowViewState.IdRef="Assign_1">
+        <Assign.To>
+          <OutArgument x:TypeArguments="x:Boolean">[mySendToBenefitOption]</OutArgument>
+        </Assign.To>
+        <Assign.Value>
+          <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+        </Assign.Value>
+      </Assign>
+      <Assign DisplayName="Assign myToday" sap:VirtualizedContainerService.HintSize="242,60" sap2010:WorkflowViewState.IdRef="Assign_2">
+        <Assign.To>
+          <OutArgument x:TypeArguments="x:String">[myToday]</OutArgument>
+        </Assign.To>
+        <Assign.Value>
+          <InArgument x:TypeArguments="x:String">[DateTime.Now.Date.ToShortDateString]</InArgument>
+        </Assign.Value>
+      </Assign>
+      <Assign DisplayName="Assign myYesterday" sap:VirtualizedContainerService.HintSize="242,60" sap2010:WorkflowViewState.IdRef="Assign_3">
+        <Assign.To>
+          <OutArgument x:TypeArguments="x:String">[myYesterday]</OutArgument>
+        </Assign.To>
+        <Assign.Value>
+          <InArgument x:TypeArguments="x:String">[DateTime.Now.AddDays(-1).Date.ToShortDateString]</InArgument>
+        </Assign.Value>
+      </Assign>
+    </Sequence>
+    <Sequence DisplayName="Active Employees Sequence" sap:VirtualizedContainerService.HintSize="966,51" sap2010:WorkflowViewState.IdRef="Sequence_17">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <Sequence DisplayName="Download Active Employees Report Sequence" sap:VirtualizedContainerService.HintSize="697,743" sap2010:WorkflowViewState.IdRef="Sequence_15">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <ui:PathExists DisplayName="Path Exists" Exists="[myActiveEmployeesReportPathExists]" sap:VirtualizedContainerService.HintSize="675,89" sap2010:WorkflowViewState.IdRef="PathExists_1" Path="[in_ReportsFolderFullPath + &quot;\&quot; + in_Config(&quot;ActiveEmployeesReportName&quot;).ToString]" PathType="File" />
+        <If Condition="[myActiveEmployeesReportPathExists]" DisplayName="If myActiveEmployeesReportPathExists" sap:VirtualizedContainerService.HintSize="675,490" sap2010:WorkflowViewState.IdRef="If_8">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <If.Then>
+            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_16" Level="Info" Message="[&quot;Active Employees Report already downloaded...&quot;]" />
+          </If.Then>
+          <If.Else>
+            <Sequence DisplayName="Download Active Employees Report Sequence" sap:VirtualizedContainerService.HintSize="336,342" sap2010:WorkflowViewState.IdRef="Sequence_33">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_9" Level="Info" Message="[&quot;Downloading active employees report...&quot;]" />
+              <ui:InvokeWorkflowFile ContinueOnError="{x:Null}" DisplayName="Invoke DownloadWorkdayReport - Active Employees workflow" sap:VirtualizedContainerService.HintSize="314,87" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="DownloadWorkdayReport.xaml">
+                <ui:InvokeWorkflowFile.Arguments>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_ReportURL">[in_Config("ActiveEmployeesReportURL").ToString]</InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_WokdayUser">[in_WorkdayUser]</InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_WorkdayPass">[in_WorkdayPass]</InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_ReportName">[in_Config("ActiveEmployeesReportName").ToString]</InArgument>
+                  <InArgument x:TypeArguments="x:String" x:Key="in_ReportFolderPath">[in_ReportsFolderFullPath]</InArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="out_ReportFilePath">[myActiveEmployeesReportPath]</OutArgument>
+                </ui:InvokeWorkflowFile.Arguments>
+              </ui:InvokeWorkflowFile>
+            </Sequence>
+          </If.Else>
+        </If>
+      </Sequence>
+      <ui:ReadCsvFile Encoding="{x:Null}" DataTable="[myActiveEmployeesDT]" Delimitator="Comma" DisplayName="Read CSV - Active Employees" FilePath="[myActiveEmployeesReportPath]" sap:VirtualizedContainerService.HintSize="697,59" sap2010:WorkflowViewState.IdRef="ReadCsvFile_1" />
+      <ui:FilterDataTable DataTable="[myActiveEmployeesDT]" DisplayName="Filter Data Table Active Employees" FilterRowsMode="Keep" sap:VirtualizedContainerService.HintSize="697,59" sap2010:WorkflowViewState.IdRef="FilterDataTable_1" OutputDataTable="[myNewHiresDT]" SelectColumnsMode="Keep">
+        <ui:FilterDataTable.Filters>
+          <scg:List x:TypeArguments="ui:FilterOperationArgument" Capacity="4">
+            <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+              <ui:FilterOperationArgument.Column>
+                <InArgument x:TypeArguments="x:String">["Location_Country"]</InArgument>
+              </ui:FilterOperationArgument.Column>
+              <ui:FilterOperationArgument.Operand>
+                <InArgument x:TypeArguments="x:String">["Romania"]</InArgument>
+              </ui:FilterOperationArgument.Operand>
+            </ui:FilterOperationArgument>
+            <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+              <ui:FilterOperationArgument.Column>
+                <InArgument x:TypeArguments="x:String">["Worker_Type"]</InArgument>
+              </ui:FilterOperationArgument.Column>
+              <ui:FilterOperationArgument.Operand>
+                <InArgument x:TypeArguments="x:String">["Employee"]</InArgument>
+              </ui:FilterOperationArgument.Operand>
+            </ui:FilterOperationArgument>
+          </scg:List>
+        </ui:FilterDataTable.Filters>
+        <ui:FilterDataTable.SelectColumns>
+          <scg:List x:TypeArguments="InArgument" Capacity="4">
+            <x:Null />
+          </scg:List>
+        </ui:FilterDataTable.SelectColumns>
+      </ui:FilterDataTable>
+      <Sequence DisplayName="Check For Employees Hired Today Sequence" sap:VirtualizedContainerService.HintSize="697,51" sap2010:WorkflowViewState.IdRef="Sequence_4">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[myNewHiresDT]" DisplayName="For Each Row in myNewHiresDT" sap:VirtualizedContainerService.HintSize="516,897" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+          <ui:ForEachRow.Body>
+            <ActivityAction x:TypeArguments="sd:DataRow">
+              <ActivityAction.Argument>
+                <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+              </ActivityAction.Argument>
+              <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="486,749" sap2010:WorkflowViewState.IdRef="Sequence_9">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <Assign DisplayName="Assign myHireDate" sap:VirtualizedContainerService.HintSize="464,60" sap2010:WorkflowViewState.IdRef="Assign_4">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">[myHireDate]</OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">[(Convert.ToDateTime(row("Hire_Date").ToString)).ToShortDateString]</InArgument>
+                  </Assign.Value>
+                </Assign>
+                <If Condition="[myToday = myHireDate]" DisplayName="If myToday = myHireDate" sap:VirtualizedContainerService.HintSize="464,525" sap2010:WorkflowViewState.IdRef="If_1">
+                  <sap:WorkflowViewStateService.ViewState>
+                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                      <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                    </scg:Dictionary>
+                  </sap:WorkflowViewStateService.ViewState>
+                  <If.Then>
+                    <Sequence DisplayName="New Employees Sequence" sap:VirtualizedContainerService.HintSize="336,377" sap2010:WorkflowViewState.IdRef="Sequence_10">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Found employee hired today...&quot;]" />
+                      <Assign DisplayName="Assign mySendToBenefitOption True (New Employee)" sap:VirtualizedContainerService.HintSize="314,60" sap2010:WorkflowViewState.IdRef="Assign_5">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Boolean">[mySendToBenefitOption]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <ui:Break DisplayName="Found New Employee Break" sap:VirtualizedContainerService.HintSize="314,22" sap2010:WorkflowViewState.IdRef="Break_1" />
+                    </Sequence>
+                  </If.Then>
+                </If>
+              </Sequence>
+            </ActivityAction>
+          </ui:ForEachRow.Body>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+        </ui:ForEachRow>
+      </Sequence>
+    </Sequence>
+    <Sequence DisplayName="Upload Today's Active Employees To Sharepoint Sequence" sap:VirtualizedContainerService.HintSize="966,51" sap2010:WorkflowViewState.IdRef="Sequence_43">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <Sequence DisplayName="Filter and Sort myActiveEmployeesDTTable Sequence" sap:VirtualizedContainerService.HintSize="336,245" sap2010:WorkflowViewState.IdRef="Sequence_40">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <ui:FilterDataTable DataTable="[myActiveEmployeesDT]" DisplayName="Filter Data Table myActiveEmployeesDT" FilterRowsMode="Keep" sap:VirtualizedContainerService.HintSize="314,59" sap2010:WorkflowViewState.IdRef="FilterDataTable_6" OutputDataTable="[myActiveEmployeesRomaniaDT]" SelectColumnsMode="Keep">
+          <ui:FilterDataTable.Filters>
+            <scg:List x:TypeArguments="ui:FilterOperationArgument" Capacity="4">
+              <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+                <ui:FilterOperationArgument.Column>
+                  <InArgument x:TypeArguments="x:String">["Location_Country"]</InArgument>
+                </ui:FilterOperationArgument.Column>
+                <ui:FilterOperationArgument.Operand>
+                  <InArgument x:TypeArguments="x:String">["Romania"]</InArgument>
+                </ui:FilterOperationArgument.Operand>
+              </ui:FilterOperationArgument>
+              <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+                <ui:FilterOperationArgument.Column>
+                  <InArgument x:TypeArguments="x:String">["Worker_Type"]</InArgument>
+                </ui:FilterOperationArgument.Column>
+                <ui:FilterOperationArgument.Operand>
+                  <InArgument x:TypeArguments="x:String">["Employee"]</InArgument>
+                </ui:FilterOperationArgument.Operand>
+              </ui:FilterOperationArgument>
+            </scg:List>
+          </ui:FilterDataTable.Filters>
+          <ui:FilterDataTable.SelectColumns>
+            <scg:List x:TypeArguments="InArgument" Capacity="8">
+              <InArgument x:TypeArguments="x:String">["Legal_First_Name"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Legal_Last_Name"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Location_Country"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Worker_Email_Address"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Hire_Date"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Worker_Status"]</InArgument>
+              <InArgument x:TypeArguments="x:String">["Worker_Time_Type"]</InArgument>
+            </scg:List>
+          </ui:FilterDataTable.SelectColumns>
+        </ui:FilterDataTable>
+        <ui:SortDataTable ColumnIndex="{x:Null}" DataColumn="{x:Null}" ColumnName="Worker_Email_Address" DataTable="[myActiveEmployeesRomaniaDT]" DisplayName="Sort Data Table myActiveEmployeesRomaniaDT" sap:VirtualizedContainerService.HintSize="314,22" sap2010:WorkflowViewState.IdRef="SortDataTable_3" Order="Ascending" OutputDataTable="[myActiveEmployeesRomaniaDT]" />
+      </Sequence>
+      <Sequence DisplayName="Write Active Employees to Benefit Template Sequence" sap:VirtualizedContainerService.HintSize="336,470" sap2010:WorkflowViewState.IdRef="Sequence_41">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_20" Level="Info" Message="[&quot;Creating today's active employees report .xlsx...&quot;]" />
+        <ui:WriteRange AddHeaders="False" DataTable="[myActiveEmployeesRomaniaDT]" DisplayName="Write Range - Benefit Excel" sap:VirtualizedContainerService.HintSize="314,115" sap2010:WorkflowViewState.IdRef="WriteRange_3" SheetName="Sheet1" StartingCell="A3" WorkbookPath="[in_BenefitExcelFullPath]" />
+        <Assign DisplayName="Assign myTodayActiveReportsFileName" sap:VirtualizedContainerService.HintSize="314,60" sap2010:WorkflowViewState.IdRef="Assign_16">
+          <Assign.To>
+            <OutArgument x:TypeArguments="x:String">[myTodayActiveReportsFileName]</OutArgument>
+          </Assign.To>
+          <Assign.Value>
+            <InArgument x:TypeArguments="x:String">[(in_Config("BenefitExcelName").ToString).Replace("&lt;YYYY-MM-DD&gt;", DateTime.Now.ToString("yyyy-MM-dd"))]</InArgument>
+          </Assign.Value>
+        </Assign>
+      </Sequence>
+      <usa:SharepointApplicationScope ClientContext="{x:Null}" DisplayName="Sharepoint application scope" sap:VirtualizedContainerService.HintSize="336,51" sap2010:WorkflowViewState.IdRef="SharepointApplicationScope_3" Password="[in_SharepointPass]" QueryGrouping="False" SharePointInstanceType="Online" URL="[in_Config(&quot;SharepointBaseURL&quot;).ToString]" UserName="[in_SharepointUser]">
+        <usa:SharepointApplicationScope.Body>
+          <ActivityAction x:TypeArguments="us:SharePointContextInfo">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="us:SharePointContextInfo" Name="SharePointContextInfoTag" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="Do" sap:VirtualizedContainerService.HintSize="336,359" sap2010:WorkflowViewState.IdRef="Sequence_42">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_21" Level="Info" Message="[&quot;Uploading today's active employees report...&quot;]" />
+              <usal:UploadFile PropertiesToAdd="{x:Null}" RelativeUrlHintText="{x:Null}" AllowOverwrite="True" CheckInFileAfterCreation="False" CheckOutFileBeforeOverwrite="False" ChooseFile="True" DisplayName="Upload file" sap:VirtualizedContainerService.HintSize="314,104" sap2010:WorkflowViewState.IdRef="UploadFile_2" LocalPath="[in_BenefitExcelFullPath]" LocalPathHintText="The current local path of the file" RelativeUrl="[in_Config(&quot;SharepointBenefitFolderURL&quot;).ToString + myTodayActiveReportsFileName.ToString]" ShowCAMLQuery="False" ShowGroupDescription="False" ShowGroupName="False" ShowLibraryName="False" ShowListName="False" ShowLocalPath="True" ShowMove="False" ShowPermissionDropdown="False" ShowPropertiesDictionary="False" ShowRelativeUrl="True" ShowRename="False" ShowUserName="False" />
+            </Sequence>
+          </ActivityAction>
+        </usa:SharepointApplicationScope.Body>
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </usa:SharepointApplicationScope>
+    </Sequence>
+    <Sequence DisplayName="Terminated Employees Sequence" sap:VirtualizedContainerService.HintSize="966,51" sap2010:WorkflowViewState.IdRef="Sequence_18">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <If Condition="[Not(mySendToBenefitOption)]" DisplayName="If No Employees Hired Today" sap:VirtualizedContainerService.HintSize="844,2281" sap2010:WorkflowViewState.IdRef="If_3">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+        <If.Then>
+          <Sequence DisplayName="Check For Employees Fired Yesterday Sequence" sap:VirtualizedContainerService.HintSize="719,2133" sap2010:WorkflowViewState.IdRef="Sequence_5">
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="697,91" sap2010:WorkflowViewState.IdRef="LogMessage_8" Level="Info" Message="[&quot;No new employees...&quot;]" />
+            <Sequence DisplayName="Download Terminated Employees Report Sequence" sap:VirtualizedContainerService.HintSize="697,743" sap2010:WorkflowViewState.IdRef="Sequence_35">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:PathExists DisplayName="Path Exists myTerminatedEmployeesReportPathExists" Exists="[myTerminatedEmployeesReportPathExists]" sap:VirtualizedContainerService.HintSize="675,89" sap2010:WorkflowViewState.IdRef="PathExists_2" Path="[in_ReportsFolderFullPath + &quot;\&quot; + in_Config(&quot;TerminatedEmployeesReportName&quot;).ToString]" PathType="File" />
+              <If Condition="[myTerminatedEmployeesReportPathExists]" DisplayName="If myTerminatedEmployeesReportPathExists" sap:VirtualizedContainerService.HintSize="675,490" sap2010:WorkflowViewState.IdRef="If_9">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <If.Then>
+                  <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_17" Level="Info" Message="[&quot;Terminated Employees Report already downloaded...&quot;]" />
+                </If.Then>
+                <If.Else>
+                  <Sequence DisplayName="Download Terminated Employees Report Sequence" sap:VirtualizedContainerService.HintSize="336,342" sap2010:WorkflowViewState.IdRef="Sequence_16">
+                    <sap:WorkflowViewStateService.ViewState>
+                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                      </scg:Dictionary>
+                    </sap:WorkflowViewStateService.ViewState>
+                    <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_11" Level="Info" Message="[&quot;Downloading terminated employees report...&quot;]" />
+                    <ui:InvokeWorkflowFile ContinueOnError="{x:Null}" DisplayName="Invoke DownloadWorkdayReport - Terminated Employees workflow" sap:VirtualizedContainerService.HintSize="314,87" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="DownloadWorkdayReport.xaml">
+                      <ui:InvokeWorkflowFile.Arguments>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_ReportURL">[in_Config("TerminatedEmployeesReportURL").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_WokdayUser">[in_WorkdayUser]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_WorkdayPass">[in_WorkdayPass]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_ReportName">[in_Config("TerminatedEmployeesReportName").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="in_ReportFolderPath">[in_ReportsFolderFullPath]</InArgument>
+                        <OutArgument x:TypeArguments="x:String" x:Key="out_ReportFilePath">[myTerminatedEmployeesReportPath]</OutArgument>
+                      </ui:InvokeWorkflowFile.Arguments>
+                    </ui:InvokeWorkflowFile>
+                  </Sequence>
+                </If.Else>
+              </If>
+            </Sequence>
+            <ui:ReadCsvFile Encoding="{x:Null}" DataTable="[myTerminatedEmployeesDT]" Delimitator="Comma" DisplayName="Read CSV - Terminated Employees" FilePath="[myTerminatedEmployeesReportPath]" sap:VirtualizedContainerService.HintSize="697,59" sap2010:WorkflowViewState.IdRef="ReadCsvFile_3" />
+            <ui:FilterDataTable DataTable="[myTerminatedEmployeesDT]" DisplayName="Filter Data Table Terminated Employees" FilterRowsMode="Keep" sap:VirtualizedContainerService.HintSize="697,59" sap2010:WorkflowViewState.IdRef="FilterDataTable_2" OutputDataTable="[myNewFiresDT]" SelectColumnsMode="Keep">
+              <ui:FilterDataTable.Filters>
+                <scg:List x:TypeArguments="ui:FilterOperationArgument" Capacity="4">
+                  <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+                    <ui:FilterOperationArgument.Column>
+                      <InArgument x:TypeArguments="x:String">["Location_Country"]</InArgument>
+                    </ui:FilterOperationArgument.Column>
+                    <ui:FilterOperationArgument.Operand>
+                      <InArgument x:TypeArguments="x:String">["Romania"]</InArgument>
+                    </ui:FilterOperationArgument.Operand>
+                  </ui:FilterOperationArgument>
+                  <ui:FilterOperationArgument BooleanOperator="And" Operator="EQ">
+                    <ui:FilterOperationArgument.Column>
+                      <InArgument x:TypeArguments="x:String">["Worker_Type"]</InArgument>
+                    </ui:FilterOperationArgument.Column>
+                    <ui:FilterOperationArgument.Operand>
+                      <InArgument x:TypeArguments="x:String">["Employee"]</InArgument>
+                    </ui:FilterOperationArgument.Operand>
+                  </ui:FilterOperationArgument>
+                </scg:List>
+              </ui:FilterDataTable.Filters>
+              <ui:FilterDataTable.SelectColumns>
+                <scg:List x:TypeArguments="InArgument" Capacity="4">
+                  <x:Null />
+                </scg:List>
+              </ui:FilterDataTable.SelectColumns>
+            </ui:FilterDataTable>
+            <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[myNewFiresDT]" DisplayName="For Each Row in myNewFiresDT" sap:VirtualizedContainerService.HintSize="697,897" sap2010:WorkflowViewState.IdRef="ForEachRow_2">
+              <ui:ForEachRow.Body>
+                <ActivityAction x:TypeArguments="sd:DataRow">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="486,749" sap2010:WorkflowViewState.IdRef="Sequence_12">
+                    <sap:WorkflowViewStateService.ViewState>
+                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                      </scg:Dictionary>
+                    </sap:WorkflowViewStateService.ViewState>
+                    <Assign DisplayName="Assign myFireDate" sap:VirtualizedContainerService.HintSize="464,60" sap2010:WorkflowViewState.IdRef="Assign_6">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:String">[myFireDate]</OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:String">[(Convert.ToDateTime(row("Termination_Date").ToString)).ToShortDateString]</InArgument>
+                      </Assign.Value>
+                    </Assign>
+                    <If Condition="[myYesterday = myFireDate]" DisplayName="If myYesterday = myFireDate" sap:VirtualizedContainerService.HintSize="464,525" sap2010:WorkflowViewState.IdRef="If_2">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <If.Then>
+                        <Sequence DisplayName="New Employees Sequence" sap:VirtualizedContainerService.HintSize="336,377" sap2010:WorkflowViewState.IdRef="Sequence_11">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                          <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Info" Message="[&quot;Found employee terminated yesterday...&quot;]" />
+                          <Assign DisplayName="Assign mySendToBenefitOption True (New Employee)" sap:VirtualizedContainerService.HintSize="314,60" sap2010:WorkflowViewState.IdRef="Assign_7">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Boolean">[mySendToBenefitOption]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                          <ui:Break DisplayName="Found Terminated Employee Break" sap:VirtualizedContainerService.HintSize="314,22" sap2010:WorkflowViewState.IdRef="Break_2" />
+                        </Sequence>
+                      </If.Then>
+                    </If>
+                  </Sequence>
+                </ActivityAction>
+              </ui:ForEachRow.Body>
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+            </ui:ForEachRow>
+          </Sequence>
+        </If.Then>
+      </If>
+    </Sequence>
+    <Sequence DisplayName="On Leave Employees Sequence" sap:VirtualizedContainerService.HintSize="966,3172" sap2010:WorkflowViewState.IdRef="Sequence_21">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <If Condition="[Not(mySendToBenefitOption)]" DisplayName="If No Employees Hired Today Or Fired Yesterday" sap:VirtualizedContainerService.HintSize="944,3048" sap2010:WorkflowViewState.IdRef="If_5">
+        <If.Then>
+          <Sequence DisplayName="Check for On Leave Employees Sequence" sap:VirtualizedContainerService.HintSize="819,2900" sap2010:WorkflowViewState.IdRef="Sequence_20">
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="797,91" sap2010:WorkflowViewState.IdRef="LogMessage_15" Level="Info" Message="[&quot;No employees terminated yesterday...&quot;]" />
+            <Sequence DisplayName="Download Yesterday's Active Employees Sequence" sap:VirtualizedContainerService.HintSize="797,2645" sap2010:WorkflowViewState.IdRef="Sequence_19">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <Assign DisplayName="Assign myYesterdayActiveReportsFileName" sap:VirtualizedContainerService.HintSize="775,60" sap2010:WorkflowViewState.IdRef="Assign_8">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:String">[myYesterdayActiveReportsFileName]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:String">[(in_Config("BenefitExcelName").ToString).Replace("&lt;YYYY-MM-DD&gt;", DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"))]</InArgument>
+                </Assign.Value>
+              </Assign>
+              <Assign DisplayName="Assign myYesterdayActiveReportsLocalPath" sap:VirtualizedContainerService.HintSize="775,60" sap2010:WorkflowViewState.IdRef="Assign_9">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:String">[myYesterdayActiveReportsLocalPath]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:String">[in_ReportsFolderFullPath +"/" +myYesterdayActiveReportsFileName]</InArgument>
+                </Assign.Value>
+              </Assign>
+              <ui:PathExists DisplayName="Path Exists myYesterdayEmployeesReportPathExists" Exists="[myYesterdayEmployeesReportPathExists]" sap:VirtualizedContainerService.HintSize="775,89" sap2010:WorkflowViewState.IdRef="PathExists_3" Path="[myYesterdayActiveReportsLocalPath]" PathType="File" />
+              <If Condition="[myYesterdayEmployeesReportPathExists]" DisplayName="If myYesterdayEmployeesReportPathExists" sap:VirtualizedContainerService.HintSize="775,751" sap2010:WorkflowViewState.IdRef="If_10">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <If.Then>
+                  <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_19" Level="Info" Message="[&quot;Yesterday's Active Employees Report already downloaded...&quot;]" />
+                </If.Then>
+                <If.Else>
+                  <Sequence DisplayName="Download Terminated Employees Report Sequence" sap:VirtualizedContainerService.HintSize="436,603" sap2010:WorkflowViewState.IdRef="Sequence_36">
+                    <sap:WorkflowViewStateService.ViewState>
+                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                      </scg:Dictionary>
+                    </sap:WorkflowViewStateService.ViewState>
+                    <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="414,91" sap2010:WorkflowViewState.IdRef="LogMessage_12" Level="Info" Message="[&quot;Downloading yesterday's active employees report...&quot;]" />
+                    <usa:SharepointApplicationScope ClientContext="{x:Null}" DisplayName="Sharepoint application scope" sap:VirtualizedContainerService.HintSize="414,348" sap2010:WorkflowViewState.IdRef="SharepointApplicationScope_1" Password="[in_SharepointPass]" QueryGrouping="False" SharePointInstanceType="Online" URL="[in_Config(&quot;SharepointBaseURL&quot;).ToString]" UserName="[in_SharepointUser]">
+                      <usa:SharepointApplicationScope.Body>
+                        <ActivityAction x:TypeArguments="us:SharePointContextInfo">
+                          <ActivityAction.Argument>
+                            <DelegateInArgument x:TypeArguments="us:SharePointContextInfo" Name="SharePointContextInfoTag" />
+                          </ActivityAction.Argument>
+                          <Sequence DisplayName="Do" sap:VirtualizedContainerService.HintSize="275,228" sap2010:WorkflowViewState.IdRef="Sequence_22">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                            <usal:GetFile RelativeUrlHintText="{x:Null}" ChooseFile="False" DisplayName="Get file" sap:VirtualizedContainerService.HintSize="253,104" sap2010:WorkflowViewState.IdRef="GetFile_1" LocalPath="[in_ReportsFolderFullPath]" LocalPathHintText="Local path where the file will be saved" RelativeUrl="[in_Config(&quot;SharepointBenefitFolderURL&quot;).ToString + myYesterdayActiveReportsFileName]" ShowCAMLQuery="False" ShowGroupDescription="False" ShowGroupName="False" ShowLibraryName="False" ShowListName="False" ShowLocalPath="True" ShowMove="False" ShowPermissionDropdown="False" ShowPropertiesDictionary="False" ShowRelativeUrl="True" ShowRename="False" ShowUserName="False" />
+                          </Sequence>
+                        </ActivityAction>
+                      </usa:SharepointApplicationScope.Body>
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                    </usa:SharepointApplicationScope>
+                  </Sequence>
+                </If.Else>
+              </If>
+              <ui:ReadRange AddHeaders="True" DataTable="[myYesterdayActiveEmployeesRomaniaDT]" DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="775,87" sap2010:WorkflowViewState.IdRef="ReadRange_1" Range="A2" SheetName="Sheet1" WorkbookPath="[myYesterdayActiveReportsLocalPath]" />
+              <Sequence DisplayName="Sort myYesterdayActiveEmployeesDT Table Sequence" sap:VirtualizedContainerService.HintSize="775,146" sap2010:WorkflowViewState.IdRef="Sequence_24">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:SortDataTable ColumnIndex="{x:Null}" DataColumn="{x:Null}" ColumnName="Work Email" DataTable="[myYesterdayActiveEmployeesRomaniaDT]" DisplayName="Sort Data Table myYesterdayActiveEmployeesRomaniaDT" sap:VirtualizedContainerService.HintSize="200,22" sap2010:WorkflowViewState.IdRef="SortDataTable_2" Order="Ascending" OutputDataTable="[myYesterdayActiveEmployeesRomaniaDT]" />
+              </Sequence>
+              <Assign DisplayName="Assign myCurrentRowIndex" sap:VirtualizedContainerService.HintSize="775,60" sap2010:WorkflowViewState.IdRef="Assign_10">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:Int32">[myCurrentRowIndex]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:Int32">0</InArgument>
+                </Assign.Value>
+              </Assign>
+              <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[myActiveEmployeesRomaniaDT]" DisplayName="For Each Row in myActiveEmployeesRomaniaDT" sap:VirtualizedContainerService.HintSize="775,988" sap2010:WorkflowViewState.IdRef="ForEachRow_3">
+                <ui:ForEachRow.Body>
+                  <ActivityAction x:TypeArguments="sd:DataRow">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                    </ActivityAction.Argument>
+                    <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="486,840" sap2010:WorkflowViewState.IdRef="Sequence_23">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <If Condition="[row(&quot;Worker_Status&quot;).ToString = myYesterdayActiveEmployeesRomaniaDT.Rows(myCurrentRowIndex).Item(&quot;Employment Status&quot;).ToString]" DisplayName="If Worker_Status Matches" sap:VirtualizedContainerService.HintSize="464,616" sap2010:WorkflowViewState.IdRef="If_6">
+                        <sap:WorkflowViewStateService.ViewState>
+                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                          </scg:Dictionary>
+                        </sap:WorkflowViewStateService.ViewState>
+                        <If.Else>
+                          <Sequence DisplayName="Found On Leave Employee Sequence" sap:VirtualizedContainerService.HintSize="336,468" sap2010:WorkflowViewState.IdRef="Sequence_25">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                            <ui:CommentOut DisplayName="Comment Out" sap:VirtualizedContainerService.HintSize="314,51" sap2010:WorkflowViewState.IdRef="CommentOut_9">
+                              <ui:CommentOut.Body>
+                                <Sequence DisplayName="Ignored Activities" sap:VirtualizedContainerService.HintSize="254,175" sap2010:WorkflowViewState.IdRef="Sequence_50">
+                                  <sap:WorkflowViewStateService.ViewState>
+                                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                    </scg:Dictionary>
+                                  </sap:WorkflowViewStateService.ViewState>
+                                  <Sequence DisplayName="Write Line Sequence" sap:VirtualizedContainerService.HintSize="200,51" sap2010:WorkflowViewState.IdRef="Sequence_49">
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+                                        <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="210,61" sap2010:WorkflowViewState.IdRef="WriteLine_20" Text="[row(&quot;Legal_Last_Name&quot;).ToString]" />
+                                    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="210,61" sap2010:WorkflowViewState.IdRef="WriteLine_11" Text="[row(&quot;Worker_Status&quot;).ToString]" />
+                                    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="210,61" sap2010:WorkflowViewState.IdRef="WriteLine_21" Text="[myYesterdayActiveEmployeesRomaniaDT.Rows(myCurrentRowIndex).Item(&quot;Last Name&quot;).ToString]" />
+                                    <WriteLine DisplayName="Write Line" sap:VirtualizedContainerService.HintSize="210,61" sap2010:WorkflowViewState.IdRef="WriteLine_12" Text="[myYesterdayActiveEmployeesRomaniaDT.Rows(myCurrentRowIndex).Item(&quot;Employment Status&quot;).ToString]" />
+                                  </Sequence>
+                                </Sequence>
+                              </ui:CommentOut.Body>
+                              <sap:WorkflowViewStateService.ViewState>
+                                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                  <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+                                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                                </scg:Dictionary>
+                              </sap:WorkflowViewStateService.ViewState>
+                            </ui:CommentOut>
+                            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_13" Level="Info" Message="[&quot;Found employee with different 'On Leave' status...&quot;]" />
+                            <Assign DisplayName="Assign mySendToBenefitOption True (New Employee)" sap:VirtualizedContainerService.HintSize="314,60" sap2010:WorkflowViewState.IdRef="Assign_11">
+                              <Assign.To>
+                                <OutArgument x:TypeArguments="x:Boolean">[mySendToBenefitOption]</OutArgument>
+                              </Assign.To>
+                              <Assign.Value>
+                                <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+                              </Assign.Value>
+                            </Assign>
+                            <ui:Break DisplayName="Found On Leave Employee Break" sap:VirtualizedContainerService.HintSize="314,22" sap2010:WorkflowViewState.IdRef="Break_3" />
+                          </Sequence>
+                        </If.Else>
+                      </If>
+                      <Assign DisplayName="Assign Increment myCurrentRowIndex" sap:VirtualizedContainerService.HintSize="464,60" sap2010:WorkflowViewState.IdRef="Assign_15">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Int32">[myCurrentRowIndex]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Int32">[myCurrentRowIndex+1]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                    </Sequence>
+                  </ActivityAction>
+                </ui:ForEachRow.Body>
+              </ui:ForEachRow>
+            </Sequence>
+          </Sequence>
+        </If.Then>
+      </If>
+    </Sequence>
+    <If Condition="[mySendToBenefitOption]" DisplayName="If Report Should Be Sent To Benefit " sap:VirtualizedContainerService.HintSize="966,935" sap2010:WorkflowViewState.IdRef="If_7">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <If.Then>
+        <Sequence DisplayName="Send Mail To Benefit Sequence" sap:VirtualizedContainerService.HintSize="358,787" sap2010:WorkflowViewState.IdRef="Sequence_28">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <Sequence DisplayName="Archive Benefit Excel Sequence" sap:VirtualizedContainerService.HintSize="336,346" sap2010:WorkflowViewState.IdRef="Sequence_31">
+            <Sequence.Variables>
+              <Variable x:TypeArguments="x:String" Name="myArchivePass" />
+            </Sequence.Variables>
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <Assign DisplayName="Assign myArchivePass" sap:VirtualizedContainerService.HintSize="242,60" sap2010:WorkflowViewState.IdRef="Assign_13">
+              <Assign.To>
+                <OutArgument x:TypeArguments="x:String">[myArchivePass]</OutArgument>
+              </Assign.To>
+              <Assign.Value>
+                <InArgument x:TypeArguments="x:String">["Uipath@" + DateTime.Now.Year.ToString]</InArgument>
+              </Assign.Value>
+            </Assign>
+            <Assign DisplayName="Assign myZIPFullPath" sap:VirtualizedContainerService.HintSize="242,60" sap2010:WorkflowViewState.IdRef="Assign_17">
+              <Assign.To>
+                <OutArgument x:TypeArguments="x:String">[myZIPFullPath]</OutArgument>
+              </Assign.To>
+              <Assign.Value>
+                <InArgument x:TypeArguments="x:String">[in_BenefitExcelFullPath.Replace(".xlsx",".zip")]</InArgument>
+              </Assign.Value>
+            </Assign>
+            <be:ZipNewFile DisplayName="Zip2" FolderFilesPath="[{in_BenefitExcelFullPath}]" sap:VirtualizedContainerService.HintSize="242,22" sap2010:WorkflowViewState.IdRef="ZipNewFile_1" Password="[myArchivePass]" ZipFile="[myZIPFullPath]" />
+          </Sequence>
+          <Sequence DisplayName="Send Mail to Benefit Sequence" sap:VirtualizedContainerService.HintSize="336,277" sap2010:WorkflowViewState.IdRef="Sequence_13">
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_5" Level="Info" Message="[&quot;Sending email with updated employees list....&quot;]" />
+            <s:SendSendGridMail SenderName="{x:Null}" Status="{x:Null}" APIKey="[in_SendGridAPIKey]" Attachments="[myZIPFullPath]" Bcc="[in_Config(&quot;SMEEmail&quot;).ToString]" Body="[in_Config(&quot;BenefitEmailBody&quot;).ToString]" Cc="[in_Config(&quot;SME2Email&quot;).ToString]" DisplayName="Send send grid mail" sap:VirtualizedContainerService.HintSize="314,22" sap2010:WorkflowViewState.IdRef="SendSendGridMail_1" SenderEmail="[in_Config(&quot;SMEEmail&quot;).ToString]" Subject="[(in_Config(&quot;BenefitEmailSubject&quot;).ToString).Replace(&quot;dd.mm.yyyy&quot;, DateTime.Now.ToString(&quot;dd.MM.yyyy&quot;))]" To="[in_Config(&quot;BenefitEmail&quot;).ToString]" />
+          </Sequence>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="314,91" sap2010:WorkflowViewState.IdRef="LogMessage_6" Level="Info" Message="[&quot;No new records found....&quot;]" />
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>
